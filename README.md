@@ -32,24 +32,15 @@ Karena dataset tidak memiliki customer ID, nilai transaksi, maupun koordinat lok
 
 Selain itu, jam dibagi menjadi empat kelompok waktu untuk membantu interpretasi kebutuhan operasional.
 
-## Menjalankan Dashboard Lokal
-
+## Setup Environment - Shell/Terminal
 ```bash
 pip install -r requirements.txt
 streamlit run dashboard/dashboard.py
 ```
-
-Dashboard membaca data dari folder `data/`, sehingga struktur direktori harus dipertahankan.
-
-## Deploy ke Streamlit Community Cloud
-
-1. Upload seluruh isi folder `submission` ke repository GitHub.
-2. Di Streamlit Community Cloud pilih repository tersebut.
-3. Pilih branch yang digunakan.
-4. Set main file path menjadi `dashboard/dashboard.py`.
-5. Deploy aplikasi.
-6. Setelah mendapatkan URL `*.streamlit.app`, masukkan URL tersebut ke `url.txt`.
-
+##  Run Steamlit App
+```bash
+streamlit run dashboard/dashboard.py
+```
 ## Catatan Reproducibility
 
 Dataset yang digunakan adalah `day.csv` dan `hour.csv`. Kolom `casual` dan `registered` tidak digunakan sebagai prediktor model karena keduanya merupakan komponen langsung dari `cnt` dan dapat menyebabkan target leakage.
