@@ -1,2 +1,0 @@
-# Berikut adalah hasil deployment ke Streamlit Community Cloud.
-# https://submissionfebrianrizkyanugrah-wl9czjc8llyeadgxc9bepz.streamlit.app/
