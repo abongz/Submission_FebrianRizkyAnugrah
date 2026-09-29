@@ -88,22 +88,15 @@ with tab1:
         1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "Mei", 6: "Jun",
         7: "Jul", 8: "Agu", 9: "Sep", 10: "Okt", 11: "Nov", 12: "Des"
     }
-    monthly = fd.groupby("mnth", as_index=False).cnt.mean()
-    monthly["bulan"] = monthly["mnth"].map(month_names)
-    st.subheader("📅 Rata-rata Rental per Bulan")
+    monthly = fd.groupby(["mnth", "yr"], as_index=False)["cnt"].mean()
+    monthly["tahun"] = monthly["yr"].map({0: "2011", 1: "2012"})
+    st.subheader("📅 Rata-rata Rental Sepeda per Bulan, 2011–2012")
     st.plotly_chart(
-        px.bar(
-            monthly, x="bulan", y="cnt",
-            category_orders={"bulan": list(month_names.values())},
-            labels={"bulan": "Bulan", "cnt": "Rata-rata Rental per Hari"},
+        px.line(
+            monthly, x="mnth", y="cnt", color="tahun", markers=True,
+            category_orders={"mnth": list(range(1, 13)), "tahun": ["2011", "2012"]},
+            labels={"mnth": "Bulan", "cnt": "Rata-rata Jumlah Rental", "tahun": "Tahun"},
         ),
-        use_container_width=True,
-    )
-
-    st.subheader("📈 Tren Rental Harian")
-    trend = fd.groupby("dteday", as_index=False).cnt.sum()
-    st.plotly_chart(
-        px.line(trend, x="dteday", y="cnt", labels={"dteday": "Tanggal", "cnt": "Jumlah Rental"}),
         use_container_width=True,
     )
 
@@ -117,12 +110,27 @@ with tab1:
             use_container_width=True,
         )
     with b:
-        st.subheader("💼 Working Day vs Non-working Day")
-        wd = fd.groupby("workingday", as_index=False).cnt.mean()
-        wd["kategori"] = wd.workingday.map({0: "Non-working day", 1: "Working day"})
+        st.subheader("💼 Rata-rata Rental per Jam: Working Day vs Non-working Day")
+        working_hour = (
+            fh.groupby(["hr", "workingday"], as_index=False)["cnt"]
+            .mean()
+        )
+        working_hour["jenis_hari"] = working_hour["workingday"].map(
+            {0: "Non-working day", 1: "Working day"}
+        )
         st.plotly_chart(
-            px.bar(wd, x="kategori", y="cnt",
-                   labels={"kategori": "", "cnt": "Rata-rata Rental"}),
+            px.line(
+                working_hour, x="hr", y="cnt", color="jenis_hari", markers=True,
+                category_orders={
+                    "hr": list(range(24)),
+                    "jenis_hari": ["Non-working day", "Working day"],
+                },
+                labels={
+                    "hr": "Jam",
+                    "cnt": "Rata-rata Jumlah Rental",
+                    "jenis_hari": "Jenis Hari",
+                },
+            ),
             use_container_width=True,
         )
 
@@ -134,25 +142,27 @@ with tab1:
 
     a, b = st.columns(2)
     with a:
-        st.subheader("🌦️ Rental berdasarkan Cuaca")
-        wp = fd.groupby("weathersit", as_index=False).cnt.mean()
-        wp["weather"] = wp.weathersit.map(WEATHER)
+        st.subheader("🌦️ Rental berdasarkan Kondisi Cuaca")
         st.plotly_chart(
-            px.bar(wp, x="weather", y="cnt",
-                   labels={"weather": "Kondisi Cuaca", "cnt": "Rata-rata Rental"}),
+            px.box(
+                fd, x="weathersit", y="cnt",
+                labels={"weathersit": "Weather Situation", "cnt": "Jumlah Rental"},
+            ),
             use_container_width=True,
         )
     with b:
-        st.subheader("🌡️ Temperatur vs Rental")
+        st.subheader("🌡️ Temperature vs Rental")
         st.plotly_chart(
-            px.scatter(fd, x="temp", y="cnt", hover_data=["dteday"],
-                       labels={"temp": "Normalized Temperature", "cnt": "Jumlah Rental"}),
+            px.scatter(
+                fd, x="temp", y="cnt", hover_data=["dteday"],
+                labels={"temp": "Normalized Temperature", "cnt": "Jumlah Rental"},
+            ),
             use_container_width=True,
         )
 
     a, b = st.columns(2)
     with a:
-        st.subheader("💧 Kelembapan vs Rental")
+        st.subheader("💧 Humidity vs Rental")
         st.plotly_chart(
             px.scatter(
                 fd, x="hum", y="cnt", hover_data=["dteday"],
@@ -161,7 +171,7 @@ with tab1:
             use_container_width=True,
         )
     with b:
-        st.subheader("💨 Kecepatan Angin vs Rental")
+        st.subheader("💨 Windspeed vs Rental")
         st.plotly_chart(
             px.scatter(
                 fd, x="windspeed", y="cnt", hover_data=["dteday"],
